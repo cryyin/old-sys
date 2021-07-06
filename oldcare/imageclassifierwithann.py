@@ -78,10 +78,8 @@ model.add(Dense(2, activation="softmax"))
 # 训练模型
 print("[INFO] 训练模型...")
 sgd = SGD(LR)
-model.compile(loss="categorical_crossentropy", optimizer=sgd,
-	metrics=["accuracy"])
-H = model.fit(X_train, y_train, validation_data=(X_test, y_test),
-	epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=1)
+model.compile(loss="categorical_crossentropy", optimizer=sgd,metrics=["accuracy"])
+H = model.fit(X_train, y_train, validation_data=(X_test, y_test),epochs=EPOCHS, batch_size=BATCH_SIZE, verbose=1)
 
 
 ################################################
@@ -90,8 +88,8 @@ H = model.fit(X_train, y_train, validation_data=(X_test, y_test),
 # 画出accuracy曲线
 plt.style.use("ggplot")
 plt.figure()
-plt.plot(np.arange(1, EPOCHS+1), H.history["acc"], label="train_acc")
-plt.plot(np.arange(1, EPOCHS+1), H.history["val_acc"],label="val_acc")
+plt.plot(np.arange(1, EPOCHS+1), H.history["accuracy"], label="train_acc")
+plt.plot(np.arange(1, EPOCHS+1), H.history["val_accuracy"],label="val_acc")
 plt.title("Training Accuracy")
 plt.xlabel("Epoch #")
 plt.ylabel("Accuracy")
