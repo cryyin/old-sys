@@ -21,9 +21,9 @@ import matplotlib.pyplot as plt
 
 # 全局变量
 dataset_path = '../images'
-accuracy_plot_path = 'plots/accuracy.png'
-loss_plot_path = 'plots/loss.png'
-output_model_path = 'models/face_expression.hdf5'
+accuracy_plot_path = '../plots/accuracy.png'
+loss_plot_path = '../plots/loss.png'
+output_model_path = '../models/face_expression.hdf5'
 
 # 全局常量
 TARGET_IMAGE_WIDTH = 28
