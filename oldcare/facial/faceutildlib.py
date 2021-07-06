@@ -121,7 +121,7 @@ class FaceUtil:
             if len(encodings) != 1:
                 os.remove(image_path)
                 warning += '[WARNING] detected %d faces in %s.'
-                warning += '%s,%s This file is deleted.\n' % (len(encodings), image_path)
+                warning += '%s,%s This file is deleted.\n' % (len(encodings), image_path) #test
                 continue
 
             # loop over the encodings
