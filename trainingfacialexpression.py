@@ -43,7 +43,7 @@ data = data.astype("float") / 255.0
 
 # convert the labels from integers to vectors
 le = LabelEncoder().fit(labels)
-labels = to_categorical(le.transform(labels), 2)                  #分类数要改！！！！！！！！！
+labels = to_categorical(le.transform(labels), 7)                  #分类数要改！！！！！！！！！
 
 # account for skew in the labeled data
 classTotals = labels.sum(axis=0)
@@ -56,11 +56,11 @@ classWeight = classTotals.max() / classTotals
 
 # initialize the model
 print("[INFO] compiling model...")
-model = vgg16.build(width=TARGET_WIDTH,height=TARGET_HEIGHT, depth=1, classes=2)
+model = vgg16.build(width=TARGET_WIDTH,height=TARGET_HEIGHT, depth=1, classes=7)
 model.build(input_shape=(28,28,1,7))
 model.summary()
 
-opt = tf.keras.optimizers.Adamax(lr=LR_INIT, beta_1=0.9, beta_2=0.999, epsilon=1e-07, name='Adamax')
+opt = tf.keras.optimizers.Adamax(learning_rate=LR_INIT, beta_1=0.9, beta_2=0.999, epsilon=1e-07, name='Adamax')
 #opt = tf.keras.optimizers.Adagrad(learning_rate=LR_INIT, initial_accumulator_value=0.1, epsilon=1e-07,name='Adagrad')
 model.compile(loss="categorical_crossentropy", optimizer=opt,
               metrics=["accuracy"])
