@@ -1,1 +1,1 @@
-from .minivggnet import vgg16
+from .vgg16 import vgg16
