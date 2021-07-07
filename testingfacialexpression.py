@@ -100,7 +100,8 @@ while True:
 
         # determine facial expression
         # result = model.predict(roi)[0]
-        result = model.predict(test_img)
+        #result = model.predict(test_img)
+        result = model.predict(roi)
         tag = ['Angry','Disgust','Fear','Happy','Neutral','Sad','Surprise']
         print('result:' + str(np.argmax(result)))
         # label=str(np.argmax(result[0]))
