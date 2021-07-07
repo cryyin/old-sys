@@ -26,6 +26,7 @@ args = vars(ap.parse_args())
 # 全局变量
 model_path = 'models/face_expression-adam.hdf5'
 input_video = args['filename']
+test_pic = 'E:/MyCode/python/OldCareSys/images/Surprise/177.jpg'
 
 # 全局常量
 FACIAL_EXPRESSION_TARGET_WIDTH = 32
@@ -75,13 +76,38 @@ while True:
         roi = img_to_array(roi)
         roi = np.expand_dims(roi, axis=0)
 
+
+
+
+
+        test_img = cv2.imread(test_pic, cv2.IMREAD_COLOR)
+        test_img = gray[top:bottom, left:right]
+        test_img = cv2.resize(test_img, (FACIAL_EXPRESSION_TARGET_WIDTH, FACIAL_EXPRESSION_TARGET_HEIGHT))
+        test_img = test_img.astype("float") / 255.0
+        test_img = img_to_array(test_img)
+        test_img = np.expand_dims(test_img, axis=0)
+        #cv2.imshow('input_image', test_img)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+
+
+
+
+
+
+
+
+
         # determine facial expression
-        (neural, smile) = model.predict(roi)[0]
-        label = "Neural" if neural > smile else "Smile"
+        # result = model.predict(roi)[0]
+        result = model.predict(test_img)
+        tag = ['Angry','Disgust','Fear','Happy','Neutral','Sad','Surprise']
+        print('result:' + str(np.argmax(result)))
+        # label=str(np.argmax(result[0]))
 
         # display the label and bounding box rectangle on the output
         # frame
-        cv2.putText(frame, label, (left, top - 10),
+        cv2.putText(frame, tag[np.argmax(result)], (left, top - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.45, (0, 0, 255), 2)
         cv2.rectangle(frame, (left, top), (right, bottom),
                       (0, 0, 255), 2)
