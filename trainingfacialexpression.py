@@ -57,13 +57,12 @@ classWeight = classTotals.max() / classTotals
 # initialize the model
 print("[INFO] compiling model...")
 model = vgg16.build(width=TARGET_WIDTH,height=TARGET_HEIGHT, depth=1, classes=7)
-model.build(input_shape=(28,28,1,7))
+model.build(input_shape=(32,32,1,7))
 model.summary()
 
 opt = tf.keras.optimizers.Adamax(learning_rate=LR_INIT, beta_1=0.9, beta_2=0.999, epsilon=1e-07, name='Adamax')
 #opt = tf.keras.optimizers.Adagrad(learning_rate=LR_INIT, initial_accumulator_value=0.1, epsilon=1e-07,name='Adagrad')
-model.compile(loss="categorical_crossentropy", optimizer=opt,
-              metrics=["accuracy"])
+model.compile(loss="categorical_crossentropy", optimizer=opt,metrics=["accuracy"])
 
 # construct the set of callbacks
 callbacks = [TrainingMonitor(output_plot_path)]
