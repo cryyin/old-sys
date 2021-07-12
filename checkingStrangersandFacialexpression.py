@@ -82,7 +82,7 @@ print('[INFO] 开始检测陌生人和表情...')
 # 不断循环
 counter = 0
 while True:
-    counter += 1
+    counter += 10
     # grab the current frame
     (grabbed, frame) = vs.read()
 

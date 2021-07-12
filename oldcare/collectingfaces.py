@@ -4,7 +4,7 @@
 由于外部程序需要调用它，所以不能使用相对路径
 
 用法：
-python collectingfaces.py --id 106 --imagedir /home/reed/git-project/
+python collectingfaces.py --id 100 --imagedir ../peoples/
    old_care_system/任务源代码/任务5.老人员工义工人脸图像采集/images
 
 '''
