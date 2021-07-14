@@ -15,6 +15,13 @@ from scipy.signal import savgol_filter, lfilter
 from oldcare.bonedetect.model.model import LSTMModel
 import torch
 import math
+import pymysql
+import subprocess as sp
+import multiprocessing
+import platform
+import psutil
+import datetime
+import Live_BroadCast
 
 
 def get_source(args):
@@ -232,6 +239,14 @@ def match_unmatched(unmatched_1, unmatched_2, lstm_set1, lstm_set2, num_matched)
 
 
 def alg2_sequential(queues, argss, consecutive_frames, event):
+
+    rtmpUrl = 'rtmp://192.168.1.185:1935/live/0'
+    raw_q = multiprocessing.Queue()  # 定义一个向推流对象传入帧及其他信息的队列
+
+    my_pusher = Live_BroadCast.stream_pusher(rtmp_url=rtmpUrl, raw_frame_q=raw_q)  # 实例化一个对象
+    my_pusher.run()  # 让这个对象在后台推送视频流
+
+
     model = LSTMModel(h_RNN=48, h_RNN_layers=2, drop_p=0.1, num_classes=7)
     model.load_state_dict(torch.load('oldcare/bonedetect/model/lstm_weights.sav',map_location=argss[0].device))
     model.eval()
@@ -272,6 +287,9 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
                 img, output_videos[0] = show_tracked_img(dict_frames[0], ip_sets[0], num_matched, output_videos[0], argss[0])
                 # print(img1.shape)
                 cv2.imshow(window_names[0], img)
+                info = (img, str(datetime.datetime.now()), '3', '4')  # 把需要送入队列的内容进行封装
+                # if not raw_q.full():  # 如果队列没满
+                raw_q.put(info)  # 送入队列
 
             elif argss[0].num_cams == 2:
                 num_matched, new_num, indxs_unmatched1 = match_ip(ip_sets[0], kp_frames[0], lstm_sets[0], num_matched, max_length_mat)
