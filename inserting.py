@@ -8,49 +8,74 @@
 
 import datetime
 import argparse
+import pymysql
 
-f = open('allowinsertdatabase.txt','r')
-content = f.read()
-f.close()
-allow = content[11:12]
+DBhost='rm-bp1nb1692ksc7xl57lo.mysql.rds.aliyuncs.com'
+DBid='root'
+DBpassword='ABCabc123'
+DBdatabase='old'
 
-if allow == '1': # 如果允许插入
 
-    f = open('allowinsertdatabase.txt','w')
-    f.write('is_allowed=0')
+def insertDatabase(command):
+    f = open('allowinsertdatabase.txt','r')
+    content = f.read()
     f.close()
+    allow = content[11:12]
 
-    print('准备插入数据库')
+    db = pymysql.connect(host=DBhost,user=DBid,password=DBpassword,db=DBdatabase)
+    cursor = db.cursor()
 
-    # 传入参数
-    ap = argparse.ArgumentParser()
-    ap.add_argument("-ed", "--event_desc", required=False,
-                    default = '', help="")
-    ap.add_argument("-et", "--event_type", required=False,
-                    default = '', help="")
-    ap.add_argument("-el", "--event_location", required=False,
-                    default = '', help="")
-    ap.add_argument("-epi", "--old_people_id", required=False,
-                    default = '', help="")
-    args = vars(ap.parse_args())
+    if allow == '1': # 如果允许插入
 
-    event_desc = args['event_desc']
-    event_type = int(args['event_type']) if args['event_type'] else None
-    event_location = args['event_location']
-    old_people_id = int(args['old_people_id']) if args['old_people_id'] else None
+        f = open('allowinsertdatabase.txt','w')
+        f.write('is_allowed=0')
+        f.close()
 
-    event_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print('准备插入数据库')
 
-    payload = {'id':0, # id=0 means insert; id=1 means update;
-               'event_desc':event_desc,
-               'event_type':event_type,
-               'event_date':event_date,
-               'event_location':event_location,
-               'oldperson_id':old_people_id}
+        # 传入参数
+        ap = argparse.ArgumentParser()
+        ap.add_argument("-ed", "--event_desc", required=False,
+                        default = '', help="")
+        ap.add_argument("-et", "--event_type", required=False,
+                        default = '', help="")
+        ap.add_argument("-el", "--event_location", required=False,
+                        default = '', help="")
+        ap.add_argument("-epi", "--old_people_id", required=False,
+                        default = '', help="")
+        args = vars(ap.parse_args())
 
-    print('调用插入事件数据的API')
+        event_desc = args['event_desc']
+        event_type = int(args['event_type']) if args['event_type'] else None
+        event_location = args['event_location']
+        old_people_id = int(args['old_people_id']) if args['old_people_id'] else None
 
-    print('插入成功')
+        event_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-else:
-    print('just pass')
+        payload = {'id':0, # id=0 means insert; id=1 means update;
+                   'event_desc':event_desc,
+                   'event_type':event_type,
+                   'event_date':event_date,
+                   'event_location':event_location,
+                   'oldperson_id':old_people_id}
+
+        print('调用插入事件数据的API')
+        try:
+            cursor.execute(command)
+            results = cursor.fetchall()
+            for row in results:
+                print(row)
+        except:
+            print("失败")
+        #关闭
+        cursor.close()
+        db.commit()
+        db.close()
+
+        print('插入成功')
+
+    else:
+        print('just pass')
+
+
+

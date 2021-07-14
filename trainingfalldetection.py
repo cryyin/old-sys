@@ -30,13 +30,13 @@ output_plot_path = 'plots/fall_detection.png'
 TARGET_WIDTH = 64
 TARGET_HEIGHT = 64
 BATCH_SIZE = 128
-EPOCHS = 100
+EPOCHS = 50
 LR_INIT = 0.001
 DECAY = LR_INIT / EPOCHS
 MOMENTUM = 0.9
 
 # 加载图片
-aap = AspectAwarePreprocessor_fall(TARGET_WIDTH, TARGET_HEIGHT)
+aap = AspectAwarePreprocessor(TARGET_WIDTH, TARGET_HEIGHT)
 iap = ImageToArrayPreprocessor()
 print(type(aap))
 
@@ -75,7 +75,7 @@ aug = ImageDataGenerator(rotation_range=30, width_shift_range=0.1,
 
 # initialize the model
 print("[INFO] compiling model...")
-model = vgg16.build(width=TARGET_WIDTH, height=TARGET_HEIGHT,depth=3, classes=2)
+model = vgg16.build(width=TARGET_WIDTH, height=TARGET_HEIGHT,depth=3,classes=2)
 model.build(input_shape=(32,32,3,2))
 model.summary()
 

@@ -9,17 +9,22 @@ python checkingstrangersandfacialexpression.py --filename tests/room_01.mp4
 
 # 导入包
 import argparse
+
+import pymysql
+
 from oldcare.facial import FaceUtil
 from PIL import Image, ImageDraw, ImageFont
 from oldcare.utils import fileassistant
 from keras.models import load_model
 from keras.preprocessing.image import img_to_array
+from pymysql.converters import escape_string
 import cv2
 import time
 import numpy as np
 import os
 import imutils
 import subprocess
+from inserting import insertDatabase
 
 # 得到当前时间
 current_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
@@ -155,7 +160,9 @@ while True:
 
                     # insert into database
                     command = '%s inserting.py --event_desc %s --event_type 2 --event_location %s'  %(python_path,event_desc, event_location)
-                    p = subprocess.Popen(command, shell=True)
+                    command = "INSERT INTO stranger(EVENT_NAME,TIME)VALUES ( '%s', '%s')" %(escape_string('陌生人出现'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                    #p = subprocess.Popen(command, shell=True)
+                    insertDatabase(command)
 
                     # 开始陌生人追踪
                     unknown_face_center = (int((right + left)/2),
@@ -228,7 +235,9 @@ while True:
 
                         # insert into database
                         command = '%s inserting.py --event_desc %s--event_type 0 --event_location %s--old_people_id %d'%(python_path, event_desc,event_location, int(name))
-                        p = subprocess.Popen(command, shell=True)
+                        command = "INSERT INTO facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在笑'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                        #p = subprocess.Popen(command, shell=True)
+                        insertDatabase(command)
 
             else: # everything is ok
                 facial_expression_timing = 0
