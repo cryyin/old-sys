@@ -4,15 +4,15 @@ import base64
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-from vis.visual import write_on_image, visualise, activity_dict, visualise_tracking
-from vis.processor import Processor
-from helpers import pop_and_add, last_ip, dist, move_figure, get_hist
-from default_params import *
-from vis.inv_pendulum import *
+from oldcare.bonedetect.vis.visual import write_on_image, visualise, activity_dict, visualise_tracking
+from oldcare.bonedetect.vis.processor import Processor
+from oldcare.bonedetect.helpers import pop_and_add, last_ip, dist, move_figure, get_hist
+from oldcare.bonedetect.default_params import *
+from oldcare.bonedetect.vis.inv_pendulum import *
 import re
 import pandas as pd
 from scipy.signal import savgol_filter, lfilter
-from model.model import LSTMModel
+from oldcare.bonedetect.model.model import LSTMModel
 import torch
 import math
 
@@ -233,7 +233,7 @@ def match_unmatched(unmatched_1, unmatched_2, lstm_set1, lstm_set2, num_matched)
 
 def alg2_sequential(queues, argss, consecutive_frames, event):
     model = LSTMModel(h_RNN=48, h_RNN_layers=2, drop_p=0.1, num_classes=7)
-    model.load_state_dict(torch.load('model/lstm_weights.sav',map_location=argss[0].device))
+    model.load_state_dict(torch.load('oldcare/bonedetect/model/lstm_weights.sav',map_location=argss[0].device))
     model.eval()
     output_videos = [None for _ in range(argss[0].num_cams)]
     t0 = time.time()

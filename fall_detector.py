@@ -5,9 +5,9 @@ import copy
 import logging
 import torch.multiprocessing as mp
 import csv
-from default_params import *
-from algorithms import *
-from helpers import last_ip
+from oldcare.bonedetect.default_params import *
+from oldcare.bonedetect.algorithms import *
+from oldcare.bonedetect.helpers import last_ip
 import os
 import matplotlib.pyplot as plt
 
