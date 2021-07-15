@@ -25,11 +25,19 @@ import Live_BroadCast
 from inserting import insertDatabase
 from pymysql.converters import escape_string
 import os
-
-
+from oldcare.facial import FaceUtil
+from PIL import Image, ImageDraw, ImageFont
+from oldcare.utils import fileassistant
+from keras.models import load_model
+from keras.preprocessing.image import img_to_array
+import asyncio
 
 output_warning_path = 'supervision/fall_warning'
 output_fall_path = 'supervision/fall'
+output_test_path = 'supervision/test'
+facial_recognition_model_path = 'models/face_recognition_hog.pickle'
+facial_expression_model_path = 'models/face_expression-adam.hdf5'
+people_info_path = 'info/people_info.csv'
 
 
 def get_source(args):
@@ -258,6 +266,26 @@ def match_unmatched(unmatched_1, unmatched_2, lstm_set1, lstm_set2, num_matched)
 
     return final_pairs, new_matched_1, new_matched_2, new_lstm1, new_lstm2
 
+'''
+async def get_oldname(images):
+    # 初始化人脸识别模型
+    faceutil = FaceUtil(facial_recognition_model_path)
+    facial_expression_model = load_model(facial_expression_model_path)
+    #face_location_list, names = faceutil.get_face_location_and_name(dict_frames[0]["img"])
+    print(faceutil.get_name(images[0]["img"]))
+    names = faceutil.get_name(images[0]["img"])
+    id_card_to_name, id_card_to_type = fileassistant.get_people_info(people_info_path)
+    flag_null=0
+    try:
+        if id_card_to_name[names[0]] !='陌生人':
+            print(id_card_to_name[names[0]])
+            flag_null=0
+    except:
+        flag_null=1
+        id_card_to_name[names[0]]='null'
+    return await id_card_to_name[names[0]]
+'''
+
 
 def alg2_sequential(queues, argss, consecutive_frames, event):
 
@@ -267,6 +295,8 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
 
     my_pusher = Live_BroadCast.stream_pusher(rtmp_url=rtmpUrl, raw_frame_q=raw_q)  # 实例化一个对象
     my_pusher.run()  # 让这个对象在后台推送视频流
+
+
 
 
 
@@ -288,6 +318,10 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
         move_figure(f, 800, 100)
     window_names = [args.video if isinstance(args.video, str) else 'Cam '+str(args.video) for args in argss]
     [cv2.namedWindow(window_name) for window_name in window_names]
+
+
+
+
     while True:
 
         # if not queue1.empty() and not queue2.empty():
@@ -303,7 +337,17 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
                 if not event.is_set():
                     event.set()
 
+
+
+
+
+
+
             kp_frames = [dict_frame["keypoint_sets"] for dict_frame in dict_frames]
+            #print(asyncio.run(get_oldname(dict_frames[0]["img"])))
+
+
+            #cv2.imwrite(os.path.join(output_test_path,'%s.jpg'%(time.strftime('%Y%m%d_%H%M%S'))), dict_frames[0]["img"])
             if argss[0].num_cams == 1:
                 num_matched, new_num, indxs_unmatched = match_ip(ip_sets[0], kp_frames[0], lstm_sets[0], num_matched, max_length_mat)
                 valid1_idxs, prediction = get_all_features(ip_sets[0], lstm_sets[0], model)
@@ -313,6 +357,11 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
                 # print(img1.shape)
                 cv2.imshow(window_names[0], img)
                 print(activity_dict[prediction+5])
+
+
+
+                #face_location_list, names = faceutil.get_face_location_and_name(dict_frames[0]["img"])
+
                 if activity_dict[prediction+5]=='FALL Warning':
                     cv2.imwrite(os.path.join(output_warning_path,'snapshot_%s.jpg'%(time.strftime('%Y%m%d_%H%M%S'))), img)
                     photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
