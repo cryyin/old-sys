@@ -30,16 +30,27 @@ import datetime
 import  Live_BroadCast
 from inserting import insertDatabase
 
+import socket
+import json
+import pickle
+
 
 
 VIDEO_WIDTH = 640
 VIDEO_HEIGHT = 480
+HOST='192.168.1.164'
+PORT=2077
 
 if __name__ == '__main__':
 
 
 
-
+	s = socket.socket()
+	s.settimeout(0.02)
+	try:
+		s.connect((HOST,PORT))
+	except:
+		print("连接失败")
 
 	# 得到当前时间
 	current_time = time.strftime('%Y-%m-%d %H:%M:%S',
@@ -279,6 +290,16 @@ if __name__ == '__main__':
 						photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
 						command = "INSERT INTO cv_fence(EVENT_NAME,PHOTO_ID,TIME)VALUES ( '%s', '%s','%s')" %(escape_string('闯入禁止区域'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
 						insertDatabase(command)
+						message={'type':3,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
 						# insert into database
 						#command = '%s inserting.py --event_desc %s--event_type 4 --event_location %s'%(python_path, event_desc, event_location)
 						#p = subprocess.Popen(command, shell=True)

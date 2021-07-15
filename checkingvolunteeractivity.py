@@ -6,6 +6,7 @@
 python checkingvolunteeractivity.py
 python checkingvolunteeractivity.py --filename tests/desk_01.mp4
 '''
+from pymysql.converters import escape_string
 
 from oldcare.facial import FaceUtil
 from scipy.spatial import distance as dist
@@ -23,6 +24,10 @@ import platform
 import psutil
 import datetime
 import  Live_BroadCast
+from inserting import insertDatabase
+import socket
+import json
+import pickle
 
 
 # 传入参数
@@ -48,6 +53,9 @@ VIDEO_HEIGHT = 480
 ANGLE = 20
 ACTUAL_DISTANCE_LIMIT = 100# cm
 
+HOST='192.168.1.164'
+PORT=2077
+
 
 if __name__ == '__main__':
 
@@ -70,6 +78,13 @@ if __name__ == '__main__':
     raw_q = multiprocessing.Queue()
     my_pusher = Live_BroadCast.stream_pusher(rtmp_url=rtmpUrl, raw_frame_q=raw_q)
     my_pusher.run()
+
+    s = socket.socket()
+    s.settimeout(0.02)
+    try:
+		s.connect((HOST,PORT))
+    except:
+		print("连接失败")
 
     print('[INFO] 开始检测义工和老人是否有互动...')
     # 不断循环
@@ -224,8 +239,18 @@ if __name__ == '__main__':
                                %(time.strftime('%Y%m%d_%H%M%S'))), frame)
 
                         # insert into database
-                        command = '%s inserting.py --event_desc %s --event_type 1 --event_location %s --old_people_id %d' %(python_path, event_desc, event_location, int(name))
-                        p = subprocess.Popen(command, shell=True)
+                        command = "INSERT INTO cv_interactive(EVENT_NAME,PHOTO_ID,TIME)VALUES ( '%s', '%s','%s')" %(escape_string('interactive'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                        insertDatabase(command)
+                        message={'type':1,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
 
         # show our detected faces along with smiling/not smiling labels
         cv2.imshow("Checking Volunteer's Activities", frame)

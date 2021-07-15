@@ -20,6 +20,7 @@ import  Live_BroadCast
 
 import socket
 import json
+import pickle
 
 
 from oldcare.facial import FaceUtil
@@ -67,7 +68,7 @@ VIDEO_HEIGHT = 480
 
 ANGLE = 20
 
-HOST='server.cryyin.top'
+HOST='192.168.1.164'
 PORT=2077
 
 # 得到 ID->姓名的map 、 ID->职位类型的map、
@@ -102,6 +103,7 @@ if __name__ == '__main__':
     my_pusher.run()  # 让这个对象在后台推送视频流
 
     s = socket.socket()
+    s.settimeout(0.02)
     try:
         s.connect((HOST,PORT))
     except:
@@ -189,13 +191,16 @@ if __name__ == '__main__':
                         command = "INSERT INTO cv_stranger(EVENT_NAME,TIME)VALUES ( '%s', '%s')" %(escape_string('陌生人出现'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                         #p = subprocess.Popen(command, shell=True)
                         insertDatabase(command)
-                        message=[{'type':'event','titel':'陌生人出现','time':time.strftime('%Y%m%d_%H%M%S')}]
-                        jsonmsg=json.dumps(message)
+                        message={'type':4,'time':time.strftime('%Y%m%d_%H%M%S')}
+
                         try:
-                            s.send(jsonmsg)
-                            s.recv(1024)
-                        except:
-                            print("error")
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
 
 
                         # 开始陌生人追踪
@@ -272,6 +277,16 @@ if __name__ == '__main__':
                             command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在笑'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             #p = subprocess.Popen(command, shell=True)
                             insertDatabase(command)
+                            message={'type':8,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
                 elif facial_expression_label == 'Angry': # alert
                     facial_expression_limit_time=0.1
                     if facial_expression_timing == 0: # just start timing
@@ -299,6 +314,16 @@ if __name__ == '__main__':
                             # insert into database
                             command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在生气'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             insertDatabase(command)
+                            message={'type':5,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
                 elif facial_expression_label == 'Disgust': # alert
                     facial_expression_limit_time=0.1
                     if facial_expression_timing == 0: # just start timing
@@ -326,6 +351,16 @@ if __name__ == '__main__':
                             # insert into database
                             command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在恶心'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             insertDatabase(command)
+                            message={'type':6,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
                 elif facial_expression_label == 'Surprise': # alert
                     facial_expression_limit_time=0.2
                     if facial_expression_timing == 0: # just start timing
@@ -353,6 +388,16 @@ if __name__ == '__main__':
                             # insert into database
                             command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在惊讶'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             insertDatabase(command)
+                            message={'type':11,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
                 elif facial_expression_label == 'Fear': # alert
                     facial_expression_limit_time=0.5
                     if facial_expression_timing == 0: # just start timing
@@ -380,6 +425,16 @@ if __name__ == '__main__':
                             # insert into database
                             command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在害怕'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             insertDatabase(command)
+                            message={'type':7,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
                 elif facial_expression_label == 'Sad': # alert
                     facial_expression_limit_time=0.5
                     if facial_expression_timing == 0: # just start timing
@@ -407,6 +462,16 @@ if __name__ == '__main__':
                             # insert into database
                             command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在伤心'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             insertDatabase(command)
+                            message={'type':10,'time':time.strftime('%Y%m%d_%H%M%S')}
+
+                        try:
+                            jsonmsg=json.dumps(message)
+                            s.send(pickle.dumps(jsonmsg))
+                            #backmsg=s.recv(1024)
+                            #backmsg=pickle.loads(backmsg)
+                            #print(backmsg)
+                        except Exception as e:
+                            print(e)
                 else: # everything is ok
                     facial_expression_timing = 0
 
