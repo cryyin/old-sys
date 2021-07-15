@@ -6,6 +6,7 @@
 python testingvolunteeractivity.py
 python testingvolunteeractivity.py --filename tests/desk_01.mp4
 '''
+from pymysql.converters import escape_string
 
 from oldcare.facial import FaceUtil
 from scipy.spatial import distance as dist
@@ -16,6 +17,8 @@ import time
 import imutils
 import numpy as np
 import argparse
+import os
+from inserting import insertDatabase
 
 
 # 传入参数
@@ -29,6 +32,7 @@ pixel_per_metric = None
 input_video = args['filename']
 model_path = 'models/face_recognition_hog.pickle'
 people_info_path = 'info/people_info.csv'
+output_active_path = 'supervision/active'
 
 # 全局常量
 FACE_ACTUAL_WIDTH = 20 # 单位厘米   姑且认为所有人的脸都是相同大小
@@ -125,13 +129,11 @@ while True:
             pass
 
         #把人名写上(同时处理中文显示问题)
-        img_PIL = Image.fromarray(cv2.cvtColor(frame,
-                                               cv2.COLOR_BGR2RGB))
+        img_PIL = Image.fromarray(cv2.cvtColor(frame,cv2.COLOR_BGR2RGB))
         draw = ImageDraw.Draw(img_PIL)
         final_label = id_card_to_name[name]
-        draw.text((left, top - 30), final_label,
-                  font=ImageFont.truetype('NotoSansCJK-Black.ttc',
-                                          40), fill=(255,0,0)) # linux
+        #draw.text((left, top - 30), final_label,font=ImageFont.truetype('NotoSansCJK-Black.ttc',40), fill=(255,0,0)) # linux
+        draw.text((left, top - 30), final_label,font=ImageFont.truetype('oldcare/resource/MSYH.ttc',40),fill=(255,0,0))
         # 转换回OpenCV格式
         frame = cv2.cvtColor(np.asarray(img_PIL),cv2.COLOR_RGB2BGR)
 
@@ -152,11 +154,12 @@ while True:
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (0, 0, 255), 2)
 
-                current_time = time.strftime('%Y-%m-%d %H:%M:%S',
-                                         time.localtime(time.time()))
-                print('[EVENT] %s, 房间桌子, %s 正在与义工交互.'
-                                                      %(current_time,
-                          id_card_to_name[old_people_name[j_index]]))
+                current_time = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
+                print('[EVENT] %s, 房间桌子, %s 正在与义工交互.'%(current_time,id_card_to_name[old_people_name[j_index]]))
+                cv2.imwrite(os.path.join(output_active_path,'snapshot_%s.jpg'%(time.strftime('%Y%m%d_%H%M%S'))), frame)
+                photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
+                command = "INSERT INTO cv_interactive(EVENT_NAME,PHOTO_ID,TIME)VALUES ( '%s', '%s','%s')" %(escape_string('interactive'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                insertDatabase(command)
 
 
     # show our detected faces along with smiling/not smiling labels

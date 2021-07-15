@@ -22,7 +22,14 @@ import platform
 import psutil
 import datetime
 import Live_BroadCast
+from inserting import insertDatabase
+from pymysql.converters import escape_string
+import os
 
+
+
+output_warning_path = 'supervision/fall_warning'
+output_fall_path = 'supervision/fall'
 
 
 def get_source(args):
@@ -301,9 +308,21 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
                 num_matched, new_num, indxs_unmatched = match_ip(ip_sets[0], kp_frames[0], lstm_sets[0], num_matched, max_length_mat)
                 valid1_idxs, prediction = get_all_features(ip_sets[0], lstm_sets[0], model)
                 dict_frames[0]["tagged_df"]["text"] += f" Pred: {activity_dict[prediction+5]}"
+
                 img, output_videos[0] = show_tracked_img(dict_frames[0], ip_sets[0], num_matched, output_videos[0], argss[0],raw_q)
                 # print(img1.shape)
                 cv2.imshow(window_names[0], img)
+                print(activity_dict[prediction+5])
+                if activity_dict[prediction+5]=='FALL Warning':
+                    cv2.imwrite(os.path.join(output_warning_path,'snapshot_%s.jpg'%(time.strftime('%Y%m%d_%H%M%S'))), img)
+                    photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
+                    command = "INSERT INTO cv_falldetect(EVENT_NAME,PHOTO_ID,TIME)VALUES ('%s','%s','%s')" %(escape_string('fall_warning'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                    insertDatabase(command)
+                if activity_dict[prediction+5]=='FALL':
+                    cv2.imwrite(os.path.join(output_fall_path,'snapshot_%s.jpg'%(time.strftime('%Y%m%d_%H%M%S'))), img)
+                    photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
+                    command = "INSERT INTO cv_falldetect(EVENT_NAME,PHOTO_ID,TIME)VALUES ('%s','%s','%s')" %(escape_string('fall'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                    insertDatabase(command)
 
 
             elif argss[0].num_cams == 2:

@@ -184,7 +184,7 @@ if __name__ == '__main__':
 
                         # insert into database
                         command = '%s inserting.py --event_desc %s --event_type 2 --event_location %s'  %(python_path,event_desc, event_location)
-                        command = "INSERT INTO stranger(EVENT_NAME,TIME)VALUES ( '%s', '%s')" %(escape_string('陌生人出现'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                        command = "INSERT INTO cv_stranger(EVENT_NAME,TIME)VALUES ( '%s', '%s')" %(escape_string('陌生人出现'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                         #p = subprocess.Popen(command, shell=True)
                         insertDatabase(command)
                         message=[{'type':'event','titel':'陌生人出现','time':time.strftime('%Y%m%d_%H%M%S')}]
@@ -264,7 +264,7 @@ if __name__ == '__main__':
 
                             # insert into database
                             command = '%s inserting.py --event_desc %s--event_type 0 --event_location %s--old_people_id %d'%(python_path, event_desc,event_location, int(name))
-                            command = "INSERT INTO facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在笑'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                            command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在笑'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             #p = subprocess.Popen(command, shell=True)
                             insertDatabase(command)
 

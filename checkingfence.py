@@ -10,6 +10,8 @@ python checkingfence.py --filename tests/yard_01.mp4
 '''
 
 # import the necessary packages
+from pymysql.converters import escape_string
+
 from oldcare.track import CentroidTracker
 from oldcare.track import TrackableObject
 from imutils.video import FPS
@@ -26,6 +28,7 @@ import platform
 import psutil
 import datetime
 import  Live_BroadCast
+from inserting import insertDatabase
 
 
 
@@ -273,10 +276,12 @@ if __name__ == '__main__':
 						cv2.imwrite(os.path.join(output_fence_path,
 													   'snapshot_%s.jpg'
 							   %(time.strftime('%Y%m%d_%H%M%S'))), frame)
-
+						photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
+						command = "INSERT INTO cv_fence(EVENT_NAME,PHOTO_ID,TIME)VALUES ( '%s', '%s','%s')" %(escape_string('闯入禁止区域'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+						insertDatabase(command)
 						# insert into database
-						command = '%s inserting.py --event_desc %s--event_type 4 --event_location %s'%(python_path, event_desc, event_location)
-						p = subprocess.Popen(command, shell=True)
+						#command = '%s inserting.py --event_desc %s--event_type 4 --event_location %s'%(python_path, event_desc, event_location)
+						#p = subprocess.Popen(command, shell=True)
 
 			# store the trackable object in our dictionary
 			trackableObjects[objectID] = to
