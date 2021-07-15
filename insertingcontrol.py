@@ -8,7 +8,7 @@
 
 import time
 
-seconds = 5 # 每经过60秒才允许再次插入
+seconds = 2 # 每经过60秒才允许再次插入
 
 while True:
     f = open('allowinsertdatabase.txt','r')

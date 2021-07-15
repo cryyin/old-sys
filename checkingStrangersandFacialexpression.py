@@ -67,8 +67,8 @@ VIDEO_HEIGHT = 480
 
 ANGLE = 20
 
-HOST=
-PORT=
+HOST='server.cryyin.top'
+PORT=2077
 
 # 得到 ID->姓名的map 、 ID->职位类型的map、
 #摄像头ID->摄像头名字的map、表情ID->表情名字的map
@@ -102,8 +102,10 @@ if __name__ == '__main__':
     my_pusher.run()  # 让这个对象在后台推送视频流
 
     s = socket.socket()
-    s.connect((HOST,PORT))
-
+    try:
+        s.connect((HOST,PORT))
+    except:
+        print("连接失败")
     # 初始化人脸识别模型
     faceutil = FaceUtil(facial_recognition_model_path)
     facial_expression_model = load_model(facial_expression_model_path)
@@ -189,8 +191,11 @@ if __name__ == '__main__':
                         insertDatabase(command)
                         message=[{'type':'event','titel':'陌生人出现','time':time.strftime('%Y%m%d_%H%M%S')}]
                         jsonmsg=json.dumps(message)
-                        s.send(jsonmsg)
-                        s.recv(1024)
+                        try:
+                            s.send(jsonmsg)
+                            s.recv(1024)
+                        except:
+                            print("error")
 
 
                         # 开始陌生人追踪
@@ -267,7 +272,141 @@ if __name__ == '__main__':
                             command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在笑'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                             #p = subprocess.Popen(command, shell=True)
                             insertDatabase(command)
+                elif facial_expression_label == 'Angry': # alert
+                    facial_expression_limit_time=0.1
+                    if facial_expression_timing == 0: # just start timing
+                        facial_expression_timing = 1
+                        facial_expression_start_time = time.time()
+                    else: # already started timing
+                        facial_expression_end_time = time.time()
+                        difference = facial_expression_end_time -facial_expression_start_time
 
+                        current_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime(time.time()))
+                        if difference < facial_expression_limit_time:
+                            print('[INFO] %s, 房间, %s生气了 %.1f 秒. 忽略'
+                                 %(current_time,
+                                   id_card_to_name[name], difference))
+                        else: # he/she is really smiling
+                            event_desc='%s正在生气' %(id_card_to_name[name])
+                            event_location = '房间'
+                            print('[EVENT] %s, 房间, %s正在生气.'
+                                %(current_time, id_card_to_name[name]))
+                            cv2.imwrite(os.path.join(output_smile_path,
+                                                     'snapshot_%s.jpg'
+                              %(time.strftime('%Y%m%d_%H%M%S'))), frame)
+
+                            # insert into database
+                            command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在生气'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                            insertDatabase(command)
+                elif facial_expression_label == 'Disgust': # alert
+                    facial_expression_limit_time=0.1
+                    if facial_expression_timing == 0: # just start timing
+                        facial_expression_timing = 1
+                        facial_expression_start_time = time.time()
+                    else: # already started timing
+                        facial_expression_end_time = time.time()
+                        difference = facial_expression_end_time -facial_expression_start_time
+
+                        current_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime(time.time()))
+                        if difference < facial_expression_limit_time:
+                            print('[INFO] %s, 房间, %s恶心了 %.1f 秒. 忽略'
+                                 %(current_time,
+                                   id_card_to_name[name], difference))
+                        else: # he/she is really smiling
+                            event_desc='%s正在恶心' %(id_card_to_name[name])
+                            event_location = '房间'
+                            print('[EVENT] %s, 房间, %s正在恶心.'
+                                %(current_time, id_card_to_name[name]))
+                            cv2.imwrite(os.path.join(output_smile_path,
+                                                     'snapshot_%s.jpg'
+                              %(time.strftime('%Y%m%d_%H%M%S'))), frame)
+
+                            # insert into database
+                            command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在恶心'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                            insertDatabase(command)
+                elif facial_expression_label == 'Surprise': # alert
+                    facial_expression_limit_time=0.2
+                    if facial_expression_timing == 0: # just start timing
+                        facial_expression_timing = 1
+                        facial_expression_start_time = time.time()
+                    else: # already started timing
+                        facial_expression_end_time = time.time()
+                        difference = facial_expression_end_time -facial_expression_start_time
+
+                        current_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime(time.time()))
+                        if difference < facial_expression_limit_time:
+                            print('[INFO] %s, 房间, %s惊讶了 %.1f 秒. 忽略'
+                                 %(current_time,
+                                   id_card_to_name[name], difference))
+                        else: # he/she is really smiling
+                            event_desc='%s正在惊讶' %(id_card_to_name[name])
+                            event_location = '房间'
+                            print('[EVENT] %s, 房间, %s正在惊讶.'
+                                %(current_time, id_card_to_name[name]))
+                            cv2.imwrite(os.path.join(output_smile_path,
+                                                     'snapshot_%s.jpg'
+                              %(time.strftime('%Y%m%d_%H%M%S'))), frame)
+
+                            # insert into database
+                            command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在惊讶'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                            insertDatabase(command)
+                elif facial_expression_label == 'Fear': # alert
+                    facial_expression_limit_time=0.5
+                    if facial_expression_timing == 0: # just start timing
+                        facial_expression_timing = 1
+                        facial_expression_start_time = time.time()
+                    else: # already started timing
+                        facial_expression_end_time = time.time()
+                        difference = facial_expression_end_time -facial_expression_start_time
+
+                        current_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime(time.time()))
+                        if difference < facial_expression_limit_time:
+                            print('[INFO] %s, 房间, %s害怕了 %.1f 秒. 忽略'
+                                 %(current_time,
+                                   id_card_to_name[name], difference))
+                        else: # he/she is really smiling
+                            event_desc='%s正在害怕' %(id_card_to_name[name])
+                            event_location = '房间'
+                            print('[EVENT] %s, 房间, %s正在害怕.'
+                                %(current_time, id_card_to_name[name]))
+                            cv2.imwrite(os.path.join(output_smile_path,
+                                                     'snapshot_%s.jpg'
+                              %(time.strftime('%Y%m%d_%H%M%S'))), frame)
+
+                            # insert into database
+                            command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在害怕'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                            insertDatabase(command)
+                elif facial_expression_label == 'Sad': # alert
+                    facial_expression_limit_time=0.5
+                    if facial_expression_timing == 0: # just start timing
+                        facial_expression_timing = 1
+                        facial_expression_start_time = time.time()
+                    else: # already started timing
+                        facial_expression_end_time = time.time()
+                        difference = facial_expression_end_time -facial_expression_start_time
+
+                        current_time = time.strftime('%Y-%m-%d %H:%M:%S',
+                                      time.localtime(time.time()))
+                        if difference < facial_expression_limit_time:
+                            print('[INFO] %s, 房间, %s伤心了 %.1f 秒. 忽略'
+                                 %(current_time,
+                                   id_card_to_name[name], difference))
+                        else: # he/she is really smiling
+                            event_desc='%s正在伤心' %(id_card_to_name[name])
+                            event_location = '房间'
+                            print('[EVENT] %s, 房间, %s正在伤心.'
+                                %(current_time, id_card_to_name[name]))
+                            cv2.imwrite(os.path.join(output_smile_path,
+                                                     'snapshot_%s.jpg'
+                              %(time.strftime('%Y%m%d_%H%M%S'))), frame)
+
+                            # insert into database
+                            command = "INSERT INTO cv_facial(NAME,EVENT_NAME,TIME)VALUES ('%s', '%s', '%s')" %(escape_string(id_card_to_name[name]),escape_string('在伤心'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
+                            insertDatabase(command)
                 else: # everything is ok
                     facial_expression_timing = 0
 
