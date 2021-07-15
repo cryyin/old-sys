@@ -31,6 +31,12 @@ from oldcare.utils import fileassistant
 from keras.models import load_model
 from keras.preprocessing.image import img_to_array
 import asyncio
+import socket
+import json
+import pickle
+
+
+
 
 output_warning_path = 'supervision/fall_warning'
 output_fall_path = 'supervision/fall'
@@ -38,6 +44,8 @@ output_test_path = 'supervision/test'
 facial_recognition_model_path = 'models/face_recognition_hog.pickle'
 facial_expression_model_path = 'models/face_expression-adam.hdf5'
 people_info_path = 'info/people_info.csv'
+HOST='192.168.1.164'
+PORT=2077
 
 
 def get_source(args):
@@ -296,7 +304,12 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
     my_pusher = Live_BroadCast.stream_pusher(rtmp_url=rtmpUrl, raw_frame_q=raw_q)  # 实例化一个对象
     my_pusher.run()  # 让这个对象在后台推送视频流
 
-
+    s = socket.socket()
+    s.settimeout(0.02)
+    try:
+        s.connect((HOST,PORT))
+    except:
+        print("连接失败")
 
 
 
@@ -367,11 +380,23 @@ def alg2_sequential(queues, argss, consecutive_frames, event):
                     photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
                     command = "INSERT INTO cv_falldetect(EVENT_NAME,PHOTO_ID,TIME)VALUES ('%s','%s','%s')" %(escape_string('fall_warning'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                     insertDatabase(command)
+                    message={'type':12,'time':time.strftime('%Y%m%d_%H%M%S')}
+                    try:
+                        jsonmsg=json.dumps(message)
+                        s.send(pickle.dumps(jsonmsg))
+                    except Exception as e:
+                        print(e)
                 if activity_dict[prediction+5]=='FALL':
                     cv2.imwrite(os.path.join(output_fall_path,'snapshot_%s.jpg'%(time.strftime('%Y%m%d_%H%M%S'))), img)
                     photoid='snapshot_%s.jpg' % (time.strftime('%Y%m%d_%H%M%S'))
                     command = "INSERT INTO cv_falldetect(EVENT_NAME,PHOTO_ID,TIME)VALUES ('%s','%s','%s')" %(escape_string('fall'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                     insertDatabase(command)
+                    message={'type':2,'time':time.strftime('%Y%m%d_%H%M%S')}
+                    try:
+                        jsonmsg=json.dumps(message)
+                        s.send(pickle.dumps(jsonmsg))
+                    except Exception as e:
+                        print(e)
 
 
             elif argss[0].num_cams == 2:

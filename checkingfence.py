@@ -291,15 +291,11 @@ if __name__ == '__main__':
 						command = "INSERT INTO cv_fence(EVENT_NAME,PHOTO_ID,TIME)VALUES ( '%s', '%s','%s')" %(escape_string('闯入禁止区域'),escape_string(photoid),escape_string(time.strftime('%Y%m%d_%H%M%S')))
 						insertDatabase(command)
 						message={'type':3,'time':time.strftime('%Y%m%d_%H%M%S')}
-
-                        try:
-                            jsonmsg=json.dumps(message)
-                            s.send(pickle.dumps(jsonmsg))
-                            #backmsg=s.recv(1024)
-                            #backmsg=pickle.loads(backmsg)
-                            #print(backmsg)
-                        except Exception as e:
-                            print(e)
+						try:
+							jsonmsg=json.dumps(message)
+							s.send(pickle.dumps(jsonmsg))
+						except Exception as e:
+							print(e)
 						# insert into database
 						#command = '%s inserting.py --event_desc %s--event_type 4 --event_location %s'%(python_path, event_desc, event_location)
 						#p = subprocess.Popen(command, shell=True)
