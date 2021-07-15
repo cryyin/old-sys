@@ -85,7 +85,7 @@ if __name__ == '__main__':
         cap.set(3, 640)
         cap.set(4, 480)
 
-    rtmpUrl = 'rtmp://192.168.1.185:1935/live/0'
+    rtmpUrl = 'rtmp://server.cryyin.top:1935/live/0'
     raw_q = multiprocessing.Queue()  # 定义一个向推流对象传入帧及其他信息的队列
 
     my_pusher = stream_pusher(rtmp_url=rtmpUrl, raw_frame_q=raw_q)  # 实例化一个对象

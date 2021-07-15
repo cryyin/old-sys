@@ -27,6 +27,11 @@ import psutil
 import datetime
 import  Live_BroadCast
 
+
+
+VIDEO_WIDTH = 640
+VIDEO_HEIGHT = 480
+
 if __name__ == '__main__':
 
 
@@ -126,7 +131,7 @@ if __name__ == '__main__':
 		# resize the frame to have a maximum width of 500 pixels (the
 		# less data we have, the faster we can process it), then convert
 		# the frame from BGR to RGB for dlib
-		frame = imutils.resize(frame, width=500)
+		frame = imutils.resize(frame, width = VIDEO_WIDTH,height = VIDEO_HEIGHT)
 		rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
 		# if the frame dimensions are empty, set them
@@ -205,8 +210,7 @@ if __name__ == '__main__':
 				endY = int(pos.bottom())
 
 				# draw a rectangle around the people
-				cv2.rectangle(frame, (startX, startY), (endX, endY),
-					(0, 255, 0), 2)
+				cv2.rectangle(frame, (startX, startY), (endX, endY),(0, 255, 0), 2)
 
 				# add the bounding box coordinates to the rectangles list
 				rects.append((startX, startY, endX, endY))
@@ -280,10 +284,8 @@ if __name__ == '__main__':
 			# draw both the ID of the object and the centroid of the
 			# object on the output frame
 			text = "ID {}".format(objectID)
-			cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-			cv2.circle(frame, (centroid[0], centroid[1]), 4,
-					   (0, 255, 0), -1)
+			cv2.putText(frame, text, (centroid[0] - 10, centroid[1] - 10),cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+			cv2.circle(frame, (centroid[0], centroid[1]), 4,(0, 255, 0), -1)
 
 		# construct a tuple of information we will be displaying on the
 		# frame
@@ -296,8 +298,7 @@ if __name__ == '__main__':
 		# loop over the info tuples and draw them on our frame
 		for (i, (k, v)) in enumerate(info):
 			text = "{}: {}".format(k, v)
-			cv2.putText(frame, text, (10, H - ((i * 20) + 20)),
-				cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+			cv2.putText(frame, text, (10, H - ((i * 20) + 20)),cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
 		# show the output frame
 		cv2.imshow("Prohibited Area", frame)

@@ -115,8 +115,7 @@ if __name__ == '__main__':
         if not input_video:
             frame = cv2.flip(frame, 1)
 
-        frame = imutils.resize(frame, width = VIDEO_WIDTH,
-                               height = VIDEO_HEIGHT)#压缩，加快识别速度
+        frame = imutils.resize(frame, width = VIDEO_WIDTH,height = VIDEO_HEIGHT)#压缩，加快识别速度
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)#grayscale，情感分析
 
         face_location_list, names = faceutil.get_face_location_and_name(frame)

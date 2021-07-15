@@ -2,6 +2,7 @@ from enum import IntEnum, unique
 from typing import List
 import cv2
 import numpy as np
+from PIL import Image, ImageDraw, ImageFont
 
 
 @unique
@@ -78,6 +79,7 @@ activity_dict = {
 def write_on_image(img: np.ndarray, text: str, color: List) -> np.ndarray:
     """Write text at the top of the image."""
     # Add a white border to top of image for writing text
+    '''
     img = cv2.copyMakeBorder(src=img,
                              top=int(0.1 * img.shape[0]),
                              bottom=0,
@@ -95,6 +97,9 @@ def write_on_image(img: np.ndarray, text: str, color: List) -> np.ndarray:
                     fontScale=0.7,
                     color=color,
                     thickness=2)
+                    '''
+
+    cv2.putText(img, text, (0, 90), cv2.FONT_HERSHEY_COMPLEX, 0.7, (0, 0, 255), 1)
 
     return img
 
