@@ -18,6 +18,9 @@ import psutil
 import datetime
 import  Live_BroadCast
 
+import socket
+import json
+
 
 from oldcare.facial import FaceUtil
 from PIL import Image, ImageDraw, ImageFont
@@ -64,6 +67,9 @@ VIDEO_HEIGHT = 480
 
 ANGLE = 20
 
+HOST=
+PORT=
+
 # 得到 ID->姓名的map 、 ID->职位类型的map、
 #摄像头ID->摄像头名字的map、表情ID->表情名字的map
 id_card_to_name, id_card_to_type = fileassistant.get_people_info(people_info_path)
@@ -94,6 +100,9 @@ if __name__ == '__main__':
 
     my_pusher = Live_BroadCast.stream_pusher(rtmp_url=rtmpUrl, raw_frame_q=raw_q)  # 实例化一个对象
     my_pusher.run()  # 让这个对象在后台推送视频流
+
+    s = socket.socket()
+    s.connect((HOST,PORT))
 
     # 初始化人脸识别模型
     faceutil = FaceUtil(facial_recognition_model_path)
@@ -178,6 +187,11 @@ if __name__ == '__main__':
                         command = "INSERT INTO stranger(EVENT_NAME,TIME)VALUES ( '%s', '%s')" %(escape_string('陌生人出现'),escape_string(time.strftime('%Y%m%d_%H%M%S')))
                         #p = subprocess.Popen(command, shell=True)
                         insertDatabase(command)
+                        message=[{'type':'event','titel':'陌生人出现','time':time.strftime('%Y%m%d_%H%M%S')}]
+                        jsonmsg=json.dumps(message)
+                        s.send(jsonmsg)
+                        s.recv(1024)
+
 
                         # 开始陌生人追踪
                         unknown_face_center = (int((right + left)/2),
@@ -289,5 +303,6 @@ if __name__ == '__main__':
             break
 
     # cleanup the camera and close any open windows
+    s.close()
     vs.release()
     cv2.destroyAllWindows()
